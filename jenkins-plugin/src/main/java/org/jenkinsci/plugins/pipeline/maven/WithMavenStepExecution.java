@@ -166,6 +166,7 @@ class WithMavenStepExecution extends StepExecution {
             LOGGER.log(Level.FINE, "Maven: {0}", step.getMaven());
             LOGGER.log(Level.FINE, "Jdk: {0}", step.getJdk());
             LOGGER.log(Level.FINE, "MavenOpts: {0}", step.getMavenOpts());
+            LOGGER.log(Level.FINE, "Temporary Binary Directory: {0}", step.getTempBinDir());
             LOGGER.log(Level.FINE, "Settings Config: {0}", step.getMavenSettingsConfig());
             LOGGER.log(Level.FINE, "Settings FilePath: {0}", step.getMavenSettingsFilePath());
             LOGGER.log(Level.FINE, "Global settings Config: {0}", step.getGlobalMavenSettingsConfig());
@@ -306,7 +307,10 @@ class WithMavenStepExecution extends StepExecution {
      */
     private void setupMaven(@Nonnull Collection<Credentials> credentials) throws IOException, InterruptedException {
         // Temp dir with the wrapper that will be prepended to the path and the temporary files used by withMaven (settings files...)
-        tempBinDir = tempDir(ws).child("withMaven" + Util.getDigestOf(UUID.randomUUID().toString()).substring(0, 8));
+        tempBinDir = step.getTempBinDir();
+        if (tempBinDir == null || tempBinDir.isEmpty()) {
+            tempBinDir = tempDir(ws).child("withMaven" + Util.getDigestOf(UUID.randomUUID().toString()).substring(0, 8));
+        }
         tempBinDir.mkdirs();
         envOverride.put("MVN_CMD_DIR", tempBinDir.getRemote());
 
